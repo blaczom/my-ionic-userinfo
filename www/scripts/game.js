@@ -1,59 +1,104 @@
-var gMatrix=2; 
+var gMatrix=2;
+var startTime;
 function clickme(){
-    //$(".container").toggleClass("boxsel");
-    //alert(init(2));
-    var x = $('#iMax').val();
-    if ((x < 2) || (x > 9) ) 
-        alert("pls input a ·¶Î§ÄÚµÄÊı×Ö");
-    else {
-        gMatrix = x;
-        init(gMatrix);
-    }
+  //$(".container").toggleClass("boxsel");
+  //alert(init(2));
+  var x = $('#iMax').val();
+  if ((x < 2) || (x > 9) )
+    alert("pls input a èŒƒå›´å†…çš„æ•°å­—");
+  else {
+    gMatrix = x;
+    init(gMatrix);
+  }
+  startTime = new Date();
 }
-function clickme2(){	
-    var cacheBlack=""; bFind=false;
-    for (i = 1 ; i <= gMatrix; i++ ) {
-        for (j = 1 ; j <= gMatrix; j++ ) {
-            var v_id="b" + i + j;
-            if ($("#"+v_id).hasClass("boxsel"))
-                cacheBlack = cacheBlack + " " + v_id;
-            else
-                bFind = true;
-            if (bFind) break;
-        }
-        if (bFind) break;
+function checkme(){
+  var cacheBlack=""; bFind=false;
+  for (i = 1 ; i <= gMatrix; i++ ) {
+    for (j = 1 ; j <= gMatrix; j++ ) {
+      var v_id="b" + i + j;
+      if ($("#"+v_id).hasClass("boxsel"))
+        cacheBlack = cacheBlack + " " + v_id;
+      else
+        bFind = true;
+      if (bFind) break;
     }
-    console.log(cacheBlack);
-    if (!bFind) alert("you win!");
+    if (bFind) break;
+  }
+  console.log(cacheBlack);
+  return(bFind);
 }
 
 function init(aRow) {
-    var content = "";
-    for (i = 1 ; i <= aRow; i++ ) {
-        content =  content + ' <div class="row"> ';            
-        for (j = 1 ; j <= aRow; j++ ) {
-            content = content + ' <span class="box" id="b' + i + j + '"></span> ' ;            
-        }            
-        content = content + ' </div> '        
-    } 
-    $(".container").html(content);
-    
-    $(".box").click(
-        function (e) { 
-            var v_id = $(e.target).attr('id');                               
-            var x = v_id.substring(1);
-            var sep = x.length / 2 ;
-            var i = parseInt(x.substring(0, sep));
-            var j = parseInt(x.substring(sep, x.length));
-            $("#"+v_id).toggleClass("boxsel");  // ×ÔÉí¡£
-            if (i > 1) $("#b"+(i-1)+j).toggleClass("boxsel");  // ´óÓÚµÚ1ÁĞ£¬Ìî×óÃæµÄ¡£
-            if (i < gMatrix) $("#b"+(i+1)+j).toggleClass("boxsel");  // Ğ¡ÓÚ×îºó1ÁĞ£¬ÌîÓÒÃæµÄ¡£
-            if (j > 1) $("#b"+i+(j-1)).toggleClass("boxsel");  // ´óÓÚµÚ1ĞĞ£¬ÌîÉÏÃæµÄ¡£
-            if (j < gMatrix) $("#b"+i+(j+1)).toggleClass("boxsel");  // Ğ¡ÓÚ×îºó1ĞĞ£¬ÌîÏÂÃæµÄ¡£                                
-            // alert(v_id);            
-            clickme2();
-        } );
-    
-    return content;
-    
+  var content = "";
+  for (i = 1 ; i <= aRow; i++ ) {
+    content =  content + ' <div class="row"> ';
+    for (j = 1 ; j <= aRow; j++ ) {
+      content = content + ' <span class="box" id="b' + i + j + '"></span> ' ;
+    }
+    content = content + ' </div> '
+  }
+  $(".container").html(content);
+
+  $(".box").click(
+    function (e) {
+      var v_id = $(e.target).attr('id');
+      var x = v_id.substring(1);
+      var sep = x.length / 2 ;
+      var i = parseInt(x.substring(0, sep));
+      var j = parseInt(x.substring(sep, x.length));
+      $("#"+v_id).toggleClass("boxsel");  // è‡ªèº«ã€‚
+      if (i > 1) $("#b"+(i-1)+j).toggleClass("boxsel");  // å¤§äºç¬¬1åˆ—ï¼Œå¡«å·¦é¢çš„ã€‚
+      if (i < gMatrix) $("#b"+(i+1)+j).toggleClass("boxsel");  // å°äºæœ€å1åˆ—ï¼Œå¡«å³é¢çš„ã€‚
+      if (j > 1) $("#b"+i+(j-1)).toggleClass("boxsel");  // å¤§äºç¬¬1è¡Œï¼Œå¡«ä¸Šé¢çš„ã€‚
+      if (j < gMatrix) $("#b"+i+(j+1)).toggleClass("boxsel");  // å°äºæœ€å1è¡Œï¼Œå¡«ä¸‹é¢çš„ã€‚
+      // alert(v_id);
+      if (!checkme()){
+        var finishTime = new Date();
+        var user = window.prompt("ä½ èµ¢äº†ï¼Œç”¨äº†" + ((finishTime - startTime) / 1000) + "ç§’è¯·è¾“å…¥æ‚¨çš„å§“å");
+        if( user){
+          exeDb(sqlInsert, [finishTime, user, ((finishTime - startTime) / 1000)]);
+        }
+      }
+    });
+  return content;
+
 }
+clickme();
+
+gdb = window.openDatabase("myLittleGameDb", '1.0', 'test little game database', 200000);
+sqlCreate = "CREATE TABLE if not exists LOGRECORD(RECTIME DATETIME, " +
+  " NICKNAME NVARCHAR2(20), GAMETIME FLOAT)" ;
+sqlInsert = "INSERT INTO LOGRECORD VALUES(?, ?, ?) ";
+function exeDb(aSql, aPara){
+  gdb.transaction(
+    function (tx) {
+      tx.executeSql(aSql, aPara,
+        function(tx,success){},
+        function(tx,err){ console.log(err.message) } );
+    },
+    function (tx, err) {
+      console.log('åˆ›å»ºå¤±è´¥', err);
+    }
+  );
+}
+exeDb(sqlCreate, []);
+
+function queryRecord(aSql){
+  console.log(aSql);
+  gdb.transaction(
+    function(tx) {
+      tx.executeSql(aSql, []
+        ,function(tx, aData){ $("#queryResult").val(JSON.stringify(trans2Json(aData))) },
+        function(tx, aErr){ console.log(aErr.message, null) }
+      );
+    }
+  );
+}
+
+function trans2Json(aData){      // å°†websqlçš„è¿”å›æ•°æ®ï¼Œè½¬åŒ–ä¸ºæ•°ç»„jsonè®°å½•ã€‚
+  var lTempItem = [];
+  for (var i = 0; i < aData.rows.length; i ++ )
+    lTempItem.push(aData.rows.item(i));
+  return lTempItem;
+};

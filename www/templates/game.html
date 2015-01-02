@@ -31,12 +31,17 @@
 			</div>			
 		</div>
 	</div>
-    <input id="iMax" name="iMax" type="number" min='2' max='9' placeholder="2-9" value='4'> </input>
-	<button onclick="clickme()"> new game </button>
-    <button onclick="clickme2()"> check game </button>
-	<p>点击小格格，全黑了你就能赢！</p>
-
-
+    <div>
+      <input id="iMax" name="iMax" type="number" min='2' max='9' placeholder="2-9" value='4'> </input>
+      <button onclick="clickme()"> new game </button>
+      <button onclick="checkme()"> check game </button>
+      <p>点击小格格，全黑了你就能赢！</p>
+    </div>
+    <div>
+      <textarea id="sqlQuery" cols="40" rows="3"> select * from logRecord </textarea>
+      <button onclick = "queryRecord($('#sqlQuery').val())"  > 运行sql </button><br/>
+      <textarea id = "queryResult" cols="50" rows="8" ></textarea>
+    </div>
 
   </ion-content>
 </ion-view>
